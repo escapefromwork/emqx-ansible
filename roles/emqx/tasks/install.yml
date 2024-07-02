@@ -1,0 +1,16 @@
+- name: install emqx
+  block:
+    - name: get emqx debian package
+      get_url:
+        url: "https://www.emqx.com/en/downloads/broker/{{ emqx_version }}/emqx-{{ emqx_version }}-debian12-amd64.deb"
+        dest: "/tmp/emqx-{{ emqx_version }}-debian12-amd64.deb"
+        mode: '0644'
+    - name: install emqx .deb package
+      apt:
+        deb: "/tmp/emqx-{{ emqx_version }}-debian12-amd64.deb"
+    - name: enable and start emqx
+      ansible.builtin.systemd:
+        name: emqx
+        daemon_reload: true
+        enabled: true
+        state: started

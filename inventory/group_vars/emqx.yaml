@@ -1,0 +1,5 @@
+emqx_cookie: supercookiezz
+emqx_cluster_name: emqx-cluster
+emqx_discovery_strategy: static
+
+emqx_dashboard_password: adminpass

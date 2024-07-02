@@ -1,0 +1,61 @@
+global
+  log /dev/log local0
+  log /dev/log local1 notice
+  chroot /var/lib/haproxy
+  user haproxy
+  group haproxy
+  daemon
+  maxconn 10240
+
+defaults
+  log global
+  mode tcp
+  option tcplog
+  timeout connect 10000
+  timeout client 240s  
+  timeout server 240s 
+  maxconn 20000
+
+frontend stats
+  mode http
+  bind *:8888
+  stats enable
+  stats uri /stats
+  stats refresh 10s
+
+frontend emqx_dashboard_front
+  mode http
+  bind *:9999
+  default_backend emqx_dashboard_back
+
+frontend emqx_server_front
+  mode tcp
+  bind *:1883
+  tcp-request inspect-delay 10s
+  tcp-request content reject unless { req.payload(0,0), mqtt_is_valid }
+  default_backend mqtt_back
+
+# todos
+# frontend ssl_emqx_server_front
+#   mode tcp
+#   bind *:8883 ssl crt /etc/haproxy/certs/server.pem
+#   tcp-request inspect-delay 10s
+#   tcp-request content reject unless { req.payload(0,0), mqtt_is_valid }
+#   default_backend mqtt_back
+
+backend emqx_dashboard_back
+  mode http
+  balance roundrobin
+  # todos
+  server emqx1 192.168.63.11:18083 check
+  server emqx2 192.168.63.12:18083 check
+  server emqx3 192.168.63.13:18083 check
+
+backend mqtt_back
+  mode tcp
+  stick-table type string len 32 size 100k expire 30m
+  stick on req.payload(0,0), mqtt_field_value(connect,client_identifier)
+  # todos
+  server emqx1 192.168.63.11:1883 check
+  server emqx2 192.168.63.12:1883 check
+  server emqx3 192.168.63.13:1883 check

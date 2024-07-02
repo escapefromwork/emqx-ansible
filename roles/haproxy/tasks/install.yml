@@ -1,0 +1,21 @@
+- name: install haproxy
+  tags: [never, install]
+  block:
+    - name: update apt cache
+      apt:
+        update_cache: true
+    - name: install haproxy package
+      apt:
+        name: haproxy
+        state: present
+
+- name: config haproxy
+  tags: [never, config]
+  block:
+    - name: copy config
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        mode: '0644'
+        validate: /usr/sbin/haproxy -f %s -c
+      notify: Reload haproxy

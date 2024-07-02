@@ -1,0 +1,39 @@
+node {
+  name = "emqx@{{ hostvars[inventory_hostname].ansible_host }}"
+  cookie = "{{ emqx_cookie }}"
+  data_dir = "{{ emqx_data_dir }}"
+  max_ports = 2097152
+}
+
+cluster {
+  name = "{{ emqx_cluster_name }}"
+  discovery_strategy = "{{ emqx_discovery_strategy }}"
+  {% if emqx_discovery_strategy == 'static' %}
+  static {
+    seeds = [{{ groups['emqx'] | map('extract', hostvars, 'ansible_host') | map('regex_replace', '^', 'emqx@') | join(', ') }}]
+    }
+  {% endif %}
+}
+
+listeners.tcp.default {
+  bind = "0.0.0.0:1883"
+  max_connections = 512000
+}
+
+dashboard {
+  listeners.http {
+    bind = 18083
+  }
+  default_username = "{{ emqx_dashboard_username }}"
+  default_password = "{{ emqx_dashboard_password }}"
+}
+
+log {
+  console {
+    enable = true
+    formatter = json
+    level = warning
+    time_offset = system
+    timestamp_format = auto
+  }
+}

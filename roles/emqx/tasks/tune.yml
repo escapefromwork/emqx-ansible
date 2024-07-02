@@ -1,0 +1,174 @@
+# https://docs.emqx.com/en/emqx/latest/performance/tune.html#turn-off-swap
+- name: disable swap
+  block:
+    - name: disable swap with shell
+      command: swapoff -a
+      register: swap_shell_output
+      changed_when: swap_shell_output.rc != 0
+    - name: disable swap via fstab
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+
+# https://docs.emqx.com/en/emqx/latest/performance/tune.html#linux-kernel-tuning
+- name: linux kernel tuning
+  block:
+    - name: tune fs.file-max
+      ansible.posix.sysctl:
+        name: fs.file-max
+        value: 2097152
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune fs.nr_open
+      ansible.posix.sysctl:
+        name: fs.nr_open
+        value: 2097152
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: set soft open file handles
+      community.general.pam_limits:
+        domain: '*'
+        limit_type: soft
+        limit_item: nofile
+        value: 2097152
+    - name: set hard open file handles
+      community.general.pam_limits:
+        domain: '*'
+        limit_type: hard
+        limit_item: nofile
+        value: 2097152
+
+# https://docs.emqx.com/en/emqx/latest/performance/tune.html#tcp-network-tuning
+- name: tcp network tuning - connection backlog
+  block:
+    - name: tune net.core.somaxconn
+      ansible.posix.sysctl:
+        name: net.core.somaxconn
+        value: 32768
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.ipv4.tcp_max_syn_backlog
+      ansible.posix.sysctl:
+        name: net.ipv4.tcp_max_syn_backlog
+        value: 16384
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.core.netdev_max_backlog
+      ansible.posix.sysctl:
+        name: net.core.netdev_max_backlog
+        value: 16384
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+
+- name: tcp network tuning - socket r/w buffer
+  block:
+    - name: tune net.core.rmem_default
+      ansible.posix.sysctl:
+        name: net.core.rmem_default
+        value: 262144
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.core.wmem_default
+      ansible.posix.sysctl:
+        name: net.core.wmem_default
+        value: 262144
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.core.rmem_max
+      ansible.posix.sysctl:
+        name: net.core.rmem_max
+        value: 16777216
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.core.wmem_max
+      ansible.posix.sysctl:
+        name: net.core.wmem_max
+        value: 16777216
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.core.optmem_max
+      ansible.posix.sysctl:
+        name: net.core.optmem_max
+        value: 16777216
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.ipv4.tcp_rmem
+      ansible.posix.sysctl:
+        name: net.ipv4.tcp_rmem
+        value: '1024 4096 16777216'
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: tune net.ipv4.tcp_wmem
+      ansible.posix.sysctl:
+        name: net.ipv4.tcp_wmem
+        value: '1024 4096 16777216'
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+
+- name: tcp network tuning - conntrack
+  block:
+    # - name: tune net.nf_conntrack_max
+    #   ansible.posix.sysctl:
+    #     name: net.nf_conntrack_max
+    #     value: 1000000
+    #     sysctl_set: true
+    #     state: present
+    #     sysctl_file: /etc/sysctl.conf
+    #     reload: true
+    # - name: tune net.netfilter.nf_conntrack_max
+    #   ansible.posix.sysctl:
+    #     name: net.netfilter.nf_conntrack_max
+    #     value: 1000000
+    #     sysctl_set: true
+    #     state: present
+    #     sysctl_file: /etc/sysctl.conf
+    #     reload: true
+    # - name: tune net.netfilter.nf_conntrack_tcp_timeout_time_wait
+    #   ansible.posix.sysctl:
+    #     name: net.netfilter.nf_conntrack_tcp_timeout_time_wait
+    #     value: 30
+    #     sysctl_set: true
+    #     state: present
+    #     sysctl_file: /etc/sysctl.conf
+    #     reload: true
+    - name: tune net.ipv4.tcp_max_tw_buckets
+      ansible.posix.sysctl:
+        name: net.ipv4.tcp_max_tw_buckets
+        value: 1048576
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true
+    - name: net.ipv4.tcp_fin_timeout
+      ansible.posix.sysctl:
+        name: net.ipv4.tcp_fin_timeout
+        value: 15
+        sysctl_set: true
+        state: present
+        sysctl_file: /etc/sysctl.conf
+        reload: true

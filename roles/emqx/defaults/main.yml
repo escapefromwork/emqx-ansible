@@ -1,0 +1,14 @@
+---
+emqx_version: 5.6.1
+
+## emqx config
+emqx_cookie: cookie
+emqx_data_dir: /var/lib/emqx
+
+## emqx config - cluster
+emqx_cluster_name: emqxcl
+emqx_discovery_strategy: manual
+
+## emqx config - dashboard
+emqx_dashboard_username: admin
+emqx_dashboard_password: public

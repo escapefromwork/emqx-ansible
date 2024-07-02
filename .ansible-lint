@@ -1,0 +1,11 @@
+exclude_paths:
+  - .ansible-lint
+
+parseable: true
+quiet: true
+
+skip_list:
+  - name[missing]
+  - name[casing]
+  - fqcn
+  - yaml[new-line-at-end-of-file]

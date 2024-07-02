@@ -1,0 +1,18 @@
+all:
+  children:
+    emqx:
+      hosts:
+        1-emqx-internal:
+          ansible_host: 192.168.63.11
+          ansible_ssh_private_key_file: .vagrant/machines/emqx-1/virtualbox/private_key
+        2-emqx-internal:
+          ansible_host: 192.168.63.12
+          ansible_ssh_private_key_file: .vagrant/machines/emqx-2/virtualbox/private_key
+        3-emqx-internal:
+          ansible_host: 192.168.63.13
+          ansible_ssh_private_key_file: .vagrant/machines/emqx-3/virtualbox/private_key
+    haproxy:
+      hosts:
+        haproxy-1:
+          ansible_host: 192.168.63.21
+          ansible_ssh_private_key_file: .vagrant/machines/haproxy-1/virtualbox/private_key

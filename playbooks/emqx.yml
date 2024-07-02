@@ -1,0 +1,6 @@
+---
+- name: EMQX
+  become: true
+  hosts: all
+  roles:
+    - emqx

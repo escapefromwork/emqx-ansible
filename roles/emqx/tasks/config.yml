@@ -1,0 +1,6 @@
+- name: Copy emqx config file
+  template:
+    src: emqx.conf.j2
+    dest: /etc/emqx/emqx.conf
+    mode: "0644"
+  notify: restart emqx
