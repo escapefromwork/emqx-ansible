@@ -1,2 +1,6 @@
 ---
-# defaults file for haproxy
+haproxy_backend_dashboard_host: |
+  server emqx1 127.0.0.1:18083 check
+
+haproxy_backend_emqx_host: |
+  server emqx1 127.0.0.1:1883 check

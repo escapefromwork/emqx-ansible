@@ -1,0 +1,9 @@
+haproxy_backend_dashboard_host: |
+  server emqx1 192.168.63.11:18083 check
+  server emqx2 192.168.63.12:18083 check
+  server emqx3 192.168.63.13:18083 check
+
+haproxy_backend_emqx_host: |
+  server emqx1 192.168.63.11:1883 check
+  server emqx2 192.168.63.12:1883 check
+  server emqx3 192.168.63.13:1883 check

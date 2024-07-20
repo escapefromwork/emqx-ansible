@@ -46,16 +46,10 @@ frontend emqx_server_front
 backend emqx_dashboard_back
   mode http
   balance roundrobin
-  # todos
-  server emqx1 192.168.63.11:18083 check
-  server emqx2 192.168.63.12:18083 check
-  server emqx3 192.168.63.13:18083 check
+  {{ haproxy_backend_dashboard_host }}
 
 backend mqtt_back
   mode tcp
   stick-table type string len 32 size 100k expire 30m
   stick on req.payload(0,0), mqtt_field_value(connect,client_identifier)
-  # todos
-  server emqx1 192.168.63.11:1883 check
-  server emqx2 192.168.63.12:1883 check
-  server emqx3 192.168.63.13:1883 check
+  {{ haproxy_backend_emqx_host }}
